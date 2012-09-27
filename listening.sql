@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `BBC`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `BBC` (
-  `id` int(11) DEFAULT NULL,
+  `indexID` int(11) DEFAULT NULL,
   `date` date DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `fileName` varchar(255) DEFAULT NULL
@@ -69,4 +69,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-09-24 18:22:49
+-- Dump completed on 2012-09-27 15:41:03

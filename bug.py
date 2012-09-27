@@ -3,9 +3,7 @@ import urllib2, os
 from datetime import date, timedelta
 import MySQLdb as mdb
 
-def oldDate(): #included in db
-	#con = mdb.connect('localhost', 'ganyue', 'stulistening', 'listening');
-	#cur = con.cursor()
+def oldDate(): 
 	cur.execute('select count(*) from BBC')
 	num = cur.fetchone()
 	if num[0] == 0:
@@ -15,8 +13,6 @@ def oldDate(): #included in db
 	return old[0]
 
 def update(url, Id, Title):
-	#con = mdb.connect('localhost', 'ganyue', 'stulistening', 'listening');
-	#cur = con.cursor()
 	cur.execute('select maxId from BBCinfo')
 	maxId = cur.fetchone()[0]
 	if Id <= maxId:
@@ -30,7 +26,7 @@ def update(url, Id, Title):
 	fileStart = page[:end].rfind('/') + 1
 	fileName = page[fileStart : end]
 	day = date((ord(page[fileStart])-48)*1000 + (ord(page[fileStart+1])-48)*100 + (ord(page[fileStart+2])-48)*10 + (ord(page[fileStart+3])-48), (ord(page[fileStart+4])-48)*10 + (ord(page[fileStart+5])-48), (ord(page[fileStart+6])-48)*10 + (ord(page[fileStart+7])-48))
-	cur.execute('insert into BBC (id, date, title, fileName) values (%d, \'%s\', \'%s\', \'%s\')' % (Id, day.isoformat(), Title, fileName))
+	cur.execute('insert into BBC (indexID, date, title, fileName) values (%d, \'%s\', \'%s\', \'%s\')' % (Id, day.isoformat(), Title, fileName))
 	con.commit()
 	res2 = urllib2.urlopen(downURL)
 	data = res2.read()
