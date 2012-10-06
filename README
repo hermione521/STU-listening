@@ -1,0 +1,9 @@
+bug.py
+search, store MP3 and update database.
+
+code.py
+prefix = "/listening"
+"/" return MP3 list
+"/article/(\d+)" return detail of the MP3
+"/audio/(\d+)" download the MP3
+
