@@ -3,7 +3,7 @@ import urllib2, os
 from datetime import date, timedelta
 import MySQLdb as mdb
 
-def oldDate(): 
+def oldDate(): #return the date you should update from to the newest. 
 	cur.execute('select count(*) from BBC')
 	num = cur.fetchone()
 	if num[0] == 0:
@@ -12,21 +12,36 @@ def oldDate():
 	old = cur.fetchone()
 	return old[0]
 
-def update(url, Id, Title):
+def update(url, Id, Title): #download mp3 file and update database
 	cur.execute('select maxId from BBCinfo')
 	maxId = cur.fetchone()[0]
 	if Id <= maxId:
-		return False
+		return False #don't have to update it
 	response = urllib2.urlopen(url)
 	page = response.read()
-	page = page.decode('GBK').encode('utf-8')
+	page = page.decode('gb2312').encode('utf-8')
+	
 	end = page.find('.mp3" target="_blank">') + 4
 	start = page[:end].rfind('http://')
 	downURL = page[start : end]
 	fileStart = page[:end].rfind('/') + 1
 	fileName = page[fileStart : end]
+	
+	start = page[end:].find('请大家先自己')
+	if start != -1:
+		subtitleFile = ""
+		print 'no subtitle'
+	else:
+		start = end + page[end:].find('BBC News with')
+		end = start + page[start:].rfind('<p>BBC News') + 11;
+		subtitle = page[start : end].replace('<p>', '').replace('</p>', '')
+		subtitle = subtitle.replace('&rsquo;', '\'').replace('&ldquo;', '\"').replace('&rdquo;', '\"').replace('&nbsp;', ' ')
+		subtitleFile = fileName.replace('.mp3', '.txt')
+		open(os.path.join(os.path.abspath("./download/"), subtitleFile), 'wb').write(subtitle)
+	
 	day = date((ord(page[fileStart])-48)*1000 + (ord(page[fileStart+1])-48)*100 + (ord(page[fileStart+2])-48)*10 + (ord(page[fileStart+3])-48), (ord(page[fileStart+4])-48)*10 + (ord(page[fileStart+5])-48), (ord(page[fileStart+6])-48)*10 + (ord(page[fileStart+7])-48))
-	cur.execute('insert into BBC (indexID, date, title, fileName) values (%d, \'%s\', \'%s\', \'%s\')' % (Id, day.isoformat(), Title, fileName))
+	
+	cur.execute('insert into BBC (indexID, date, title, fileName, subtitleFile) values (%d, \'%s\', \'%s\', \'%s\', \'%s\')' % (Id, day.isoformat(), Title, fileName, subtitleFile))
 	con.commit()
 	res2 = urllib2.urlopen(downURL)
 	data = res2.read()
@@ -39,10 +54,10 @@ def str2num(numStr):
 		ans += (ord(numStr[i]) - 48) * (10 ** (len(numStr) - i - 1))
 	return ans
 
-def searchPage(pageStr):
+def searchPage(pageStr): #find everysmall urls and parse them to update()
 	response = urllib2.urlopen(pageStr)
 	page = response.read()
- 	page = page.decode('GBK').encode('utf-8')
+ 	page = page.decode('gb2312').encode('utf-8')
 	searchStr = 'html" target="_blank">BBC'
 	for i in range(25):
 		urlEnd = page.find(searchStr) + 4
@@ -55,11 +70,11 @@ def searchPage(pageStr):
 		page = page[titleEnd:]
 	return True
 
-def search():
+def search(): #find how many pages there are, and parse every page to searchPage()
 	indexURL = 'http://www.hxen.com/englishlistening/bbc/index.html'
 	response = urllib2.urlopen(indexURL)
 	page = response.read()
-	page = page.decode('GBK').encode('utf-8')
+	page = page.decode('gb2312').encode('utf-8')
 	start = page.find('<b>1/') + 5
 	end = start + page[start:].find('<')
 	totle = str2num(page[start : end])

@@ -7,3 +7,7 @@ prefix = "/listening"
 "/article/(\d+)" return detail of the MP3
 "/audio/(\d+)" download the MP3
 
+Latest Edition:
+update bug.py to catch subtitles
+ignore other files please
+
